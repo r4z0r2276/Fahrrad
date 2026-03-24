@@ -1,0 +1,109 @@
+<footer class="footer">
+  <div class="container footer-content">
+    <div class="brand">
+      <div class="logo">
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon"><circle cx="12" cy="12" r="10"/><path d="M16 12l-4-4-4 4M12 8v8"/></svg>
+        <span>Fahrradschrauber</span>
+      </div>
+      <p class="brand-desc">Ihre zuverlässige Fahrradwerkstatt in Mülheim-Heimaterde. Qualität, die man fährt.</p>
+    </div>
+    
+    <div class="footer-links">
+      <div class="link-group">
+        <h4>Navigation</h4>
+        <a href="#home">Startseite</a>
+        <a href="#services">Leistungen</a>
+        <a href="#contact">Kontakt</a>
+      </div>
+      
+      <div class="link-group">
+        <h4>Rechtliches</h4>
+        <a href="#impressum">Impressum</a>
+        <a href="#datenschutz">Datenschutz</a>
+      </div>
+    </div>
+  </div>
+  
+  <div class="footer-bottom">
+    <div class="container">
+      <p>&copy; {new Date().getFullYear()} Fahrradschrauber Mülheim-Heimaterde. Alle Rechte vorbehalten.</p>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: var(--color-bg);
+    border-top: 1px solid var(--border-color);
+    padding-top: 64px;
+  }
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 64px;
+    margin-bottom: 48px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 700;
+    font-size: 1.1rem;
+    margin-bottom: 12px;
+    color: var(--color-text);
+  }
+
+  .logo-icon {
+    color: var(--color-primary);
+  }
+
+  .brand-desc {
+    color: var(--color-text-muted);
+    font-size: 0.95rem;
+    max-width: 300px;
+    line-height: 1.6;
+  }
+
+  .footer-links {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 32px;
+  }
+
+  .link-group h4 {
+    font-size: 1rem;
+    margin-bottom: 16px;
+    color: var(--color-text);
+    font-weight: 600;
+  }
+
+  .link-group a {
+    display: block;
+    color: var(--color-text-muted);
+    margin-bottom: 12px;
+    font-size: 0.95rem;
+    transition: color var(--transition);
+  }
+
+  .link-group a:hover {
+    color: var(--color-primary);
+  }
+
+  .footer-bottom {
+    background: var(--color-bg-alt);
+    padding: 24px 0;
+    text-align: center;
+    color: var(--color-text-muted);
+    font-size: 0.85rem;
+    border-top: 1px solid var(--border-color);
+  }
+
+  @media (max-width: 768px) {
+    .footer-content {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+  }
+</style>
