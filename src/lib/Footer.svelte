@@ -2,7 +2,7 @@
   <div class="container footer-content">
     <div class="brand">
       <div class="logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="logo-icon"><circle cx="12" cy="12" r="10"/><path d="M16 12l-4-4-4 4M12 8v8"/></svg>
+        <img src="/images/logo.png" alt="Fahrradschrauber Logo" class="brand-logo" />
         <span>Fahrradschrauber</span>
       </div>
       <p class="brand-desc">Ihre zuverlässige Fahrradwerkstatt in Mülheim-Heimaterde. Qualität, die man fährt.</p>
@@ -55,8 +55,11 @@
     color: var(--color-text);
   }
 
-  .logo-icon {
-    color: var(--color-primary);
+  .brand-logo {
+    height: 28px;
+    width: auto;
+    object-fit: contain;
+    border-radius: 4px;
   }
 
   .brand-desc {

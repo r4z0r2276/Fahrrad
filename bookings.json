@@ -1,0 +1,52 @@
+[
+  {
+    "id": "GHRO4D",
+    "name": "Tester",
+    "phone": "0123 456789",
+    "bikeType": "Citybike / Hollandrad",
+    "problem": "Test text",
+    "status": "Fahrrad abgeholt",
+    "createdAt": "2026-03-25T01:06:00.535Z"
+  },
+  {
+    "id": "GO459O",
+    "name": "a",
+    "phone": "123232323232",
+    "bikeType": "Citybike / Hollandrad",
+    "problem": "bfghd",
+    "status": "Abgeschlossen",
+    "createdAt": "2026-03-25T01:16:05.818Z",
+    "messages": [
+      {
+        "sender": "Kunde",
+        "text": "JA frgae",
+        "timestamp": "2026-03-25T01:31:34.878Z"
+      },
+      {
+        "sender": "Werkstatt",
+        "text": "JA bitte",
+        "timestamp": "2026-03-25T01:31:54.895Z"
+      }
+    ]
+  },
+  {
+    "id": "X2LYTT",
+    "name": "a",
+    "phone": "123232323232",
+    "bikeType": "Citybike / Hollandrad",
+    "problem": "afaf",
+    "status": "Fahrrad abgeholt",
+    "createdAt": "2026-03-25T01:51:42.419Z",
+    "messages": []
+  },
+  {
+    "id": "MLYP4U",
+    "name": "s",
+    "phone": "123456789",
+    "bikeType": "Rennrad",
+    "problem": "dhjhr",
+    "status": "Fahrrad abgeholt",
+    "createdAt": "2026-03-25T02:03:55.166Z",
+    "messages": []
+  }
+]

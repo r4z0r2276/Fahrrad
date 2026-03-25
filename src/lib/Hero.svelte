@@ -11,9 +11,9 @@
     <p class="subtitle animate-fade-in-up delay-200">
       Fachgerechte Reparatur, Inspektion und Wartung für alle Fahrradtypen in Heimaterde. Schnell, zuverlässig und transparent.
     </p>
-    <div class="cta-group animate-fade-in-up delay-300">
-      <a href="#contact" class="btn btn-primary">Termin vereinbaren</a>
-      <a href="#services" class="btn btn-outline">Unsere Leistungen</a>
+    <div class="hero-actions animate-fade-in-up delay-300">
+      <a href="/termin" class="btn btn-primary btn-lg pulse-animation">Termin vereinbaren</a>
+      <a href="#services" class="btn btn-outline btn-lg">Unsere Leistungen</a>
     </div>
 
     <div class="stats delay-300 animate-fade-in-up">
@@ -76,8 +76,7 @@
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 32px;
-    padding-top: 40px;
-    border-top: 1px solid var(--border-color);
+    margin-top: 40px;
     max-width: 600px;
   }
 

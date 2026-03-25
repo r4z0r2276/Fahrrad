@@ -10,6 +10,8 @@
 <section id="contact" class="contact">
   <div class="container">
     <div class="contact-wrapper">
+      
+      <!-- Contact Info -->
       <div class="contact-info">
         <h2 class="title">Hier finden Sie uns</h2>
         <p class="subtitle">Kommen Sie mit Ihrem Rad direkt bei uns vorbei oder vereinbaren Sie vorab einen Termin.</p>
@@ -59,6 +61,7 @@
         </div>
       </div>
       
+      <!-- Map Integration restores original balance -->
       <div class="map-card">
         <iframe
           title="Fahrradschrauber Mülheim-Heimaterde Karte"
@@ -70,6 +73,7 @@
           loading="lazy">
         </iframe>
       </div>
+      
     </div>
   </div>
 </section>
