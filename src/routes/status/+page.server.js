@@ -1,7 +1,4 @@
-import { promises as fs } from 'fs';
-import path from 'path';
-
-const DB_FILE = path.resolve('./bookings.json');
+import { supabase } from '$lib/supabaseClient.js';
 
 export const actions = {
   search: async ({ request }) => {
@@ -14,16 +11,12 @@ export const actions = {
     queryId = queryId.toString().toUpperCase().trim();
 
     try {
-      const fileData = await fs.readFile(DB_FILE, 'utf-8');
-      const bookings = JSON.parse(fileData);
-      
-      const booking = bookings.find(b => b.id === queryId);
+      const { data: booking } = await supabase.from('bookings').select('id, "bikeType", status, "createdAt", messages').eq('id', queryId).single();
       
       if (!booking) {
         return { error: 'Kein Auftrag unter dieser Ticket-ID gefunden. Bitte prüfen Sie Ihre Eingabe.' };
       }
 
-      // Return only safe data to the public frontend
       return { 
         success: true, 
         ticketInfo: {
@@ -51,35 +44,30 @@ export const actions = {
     }
 
     try {
-      const fileData = await fs.readFile(DB_FILE, 'utf-8');
-      const bookings = JSON.parse(fileData);
-      const bookingIndex = bookings.findIndex(b => b.id === id.toString());
+      const { data: booking } = await supabase.from('bookings').select('id, "bikeType", status, "createdAt", messages').eq('id', id.toString()).single();
       
-      if (bookingIndex === -1) {
+      if (!booking) {
         return { error: 'Ticket nicht gefunden.' };
       }
 
-      if (!bookings[bookingIndex].messages) {
-        bookings[bookingIndex].messages = [];
-      }
-
-      bookings[bookingIndex].messages.push({
+      let msgs = booking.messages || [];
+      msgs.push({
         sender: 'Kunde',
         text: message.toString().trim(),
         timestamp: new Date().toISOString()
       });
 
-      await fs.writeFile(DB_FILE, JSON.stringify(bookings, null, 2));
+      await supabase.from('bookings').update({ messages: msgs }).eq('id', booking.id);
 
       return { 
         success: true, 
         messageSent: true,
         ticketInfo: {
-          id: bookings[bookingIndex].id,
-          bikeType: bookings[bookingIndex].bikeType,
-          status: bookings[bookingIndex].status,
-          date: bookings[bookingIndex].createdAt,
-          messages: bookings[bookingIndex].messages
+          id: booking.id,
+          bikeType: booking.bikeType,
+          status: booking.status,
+          date: booking.createdAt,
+          messages: msgs
         }
       };
 
