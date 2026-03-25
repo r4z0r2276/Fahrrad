@@ -95,13 +95,19 @@
                   <p class="status-desc">{resultInfo.text}</p>
                 </div>
               </div>
+
+              {#if form.ticketInfo.mechanic && form.ticketInfo.mechanic !== 'Nicht zugewiesen'}
+                <div class="mechanic-badge animate-in delay-200" style="display:flex; align-items:center; gap:8px; background: rgba(249, 115, 22, 0.1); color: #fed7aa; padding: 12px 24px; border-radius: 12px; font-size: 1rem; margin-bottom: 32px; border: 1px solid rgba(249, 115, 22, 0.3);">
+                  <span style="font-size: 1.25rem;">🛠️</span> Euer Mechaniker <strong>{form.ticketInfo.mechanic}</strong> hat das Rad übernommen!
+                </div>
+              {/if}
               
               {#if form.ticketInfo.status === 'Abholbereit' || form.ticketInfo.status === 'Fahrrad abgeholt' || form.ticketInfo.status === 'Abgeschlossen'}
                 <div class="cx-grid">
                   <div class="ready-action cx-card" style="margin-top: 0;">
                     <h4 style="margin-bottom: 8px;">🚀 Schnell-Abholung</h4>
                     <p style="font-size: 0.9rem; margin-bottom: 12px; opacity: 0.9;">Zeigen Sie diesen QR-Code im Laden vor, um Ihr Rad sofort zu erhalten.</p>
-                    <div style="background: white; padding: 12px; border-radius: 8px; display: inline-block; margin-bottom: 12px;">
+                    <div style="background: var(--color-bg-card); padding: 12px; border-radius: 8px; display: inline-block; margin-bottom: 12px;">
                       <!-- Fake QR SVG -->
                       <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=TICKET:{form.ticketInfo.id}" alt="QR" width="120" height="120" />
                     </div>
@@ -324,7 +330,7 @@
 
   .error-msg {
     color: #dc2626;
-    background: #fef2f2;
+    background: rgba(220, 38, 38, 0.1);
     padding: 12px 16px;
     border-radius: var(--radius-md);
     font-size: 0.95rem;
@@ -660,8 +666,8 @@
 
   .msg-shop {
     background: #eff6ff;
-    border: 1px solid #bfdbfe;
-    color: #1e3a8a;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+    color: #93c5fd;
     align-self: flex-start;
     border-bottom-left-radius: 4px;
   }

@@ -1,5 +1,9 @@
 <script>
+  export let data; // Passed from SvelteKit load function
   export let form; // Passed from SvelteKit actions
+
+  $: isVacationMode = data.settingsStatus === 'Urlaubsmodus (Keine neuen Termine)';
+  $: isBusyMode = data.settingsStatus === 'Ausgebucht (Warteschlange)';
 </script>
 
 <svelte:head>
@@ -19,7 +23,17 @@
       
       <!-- Booking Form -->
       <div class="booking-card">
-        {#if form?.success}
+        {#if isVacationMode}
+          <div class="success-state" style="padding: 16px 0;">
+            <div class="check-icon" style="background: rgba(220, 38, 38, 0.1); color: #dc2626;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <h2>Wir haben aktuell geschlossen!</h2>
+            <p>Die Werkstatt befindet sich momentan im <strong>Urlaubsmodus</strong>. Wir können daher vorübergehend leider keine neuen Aufträge annehmen.</p>
+            <p style="margin-top: 16px; font-size: 0.95rem;">Vielen Dank für Ihr Verständnis. Schauen Sie gerne in ein paar Tagen wieder vorbei!</p>
+            <a href="/" class="btn btn-outline" style="margin-top: 32px;">Zurück zur Startseite</a>
+          </div>
+        {:else if form?.success}
           <div class="success-state">
             <div class="check-icon">
               <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
@@ -36,6 +50,18 @@
             <a href="/" class="btn btn-primary" style="margin-top: 24px;">Zurück zur Startseite</a>
           </div>
         {:else}
+          {#if isBusyMode}
+            <div class="busy-alert" style="background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.3); padding:16px; border-radius:8px; margin-bottom:24px; display:flex; gap:12px; align-items:flex-start;">
+              <div style="color: #eab308; margin-top: 2px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+              </div>
+              <div>
+                <strong style="color: #fef08a; display:block; margin-bottom:4px;">Hohes Arbeitsaufkommen</strong>
+                <p style="color: #fde047; font-size:0.9rem; margin:0; line-height:1.4;">Wir sind derzeit stark ausgebucht. Sie können Ihre Anfrage gerne stellen und sich auf die <strong>Warteschliste</strong> setzen lassen, jedoch kann die Bearbeitung deutlich länger dauern als gewohnt.</p>
+              </div>
+            </div>
+          {/if}
+
           <form method="POST" action="?/book" class="booking-form">
             <div class="form-row">
               <div class="form-group">
@@ -146,7 +172,7 @@
     justify-content: center;
     width: 80px;
     height: 80px;
-    background: #d1fae5;
+    background: rgba(16, 185, 129, 0.1);
     color: #059669;
     border-radius: 50%;
     margin-bottom: 24px;
@@ -261,7 +287,7 @@
     align-items: center;
     gap: 12px;
     color: #dc2626;
-    background: #fef2f2;
+    background: rgba(220, 38, 38, 0.1);
     padding: 16px;
     border-radius: var(--radius-md);
     border: 1px solid #fecaca;

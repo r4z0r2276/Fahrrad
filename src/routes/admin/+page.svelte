@@ -178,7 +178,7 @@
         <div class="booking-card">
           <h3 style="margin-bottom: 16px;">📌 Interne Werkstatt-Notizen</h3>
           <form method="POST" action="?/saveNote" use:enhance>
-            <textarea name="text" class="chat-input" rows="5" style="width: 100%; margin-bottom: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; background: #fef9c3;" placeholder="Hier To-Dos für Kollegen eintragen...">{notesText}</textarea>
+            <textarea name="text" class="chat-input" rows="5" style="width: 100%; margin-bottom: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; background: rgba(234, 179, 8, 0.1); color: #fde047; border: 1px dashed rgba(234, 179, 8, 0.4);" placeholder="Hier To-Dos für Kollegen eintragen...">{notesText}</textarea>
             <button type="submit" class="btn-primary" style="width: 100%;">Notiz Speichern</button>
           </form>
         </div>
@@ -264,14 +264,26 @@
               <div style="display: flex; flex-direction: column; gap: 6px;">
                 <h3 style="margin: 0;">{booking.name} <span class="booking-date">({formatDate(booking.createdAt)})</span></h3>
                 {#if customerMap[booking.phone] && customerMap[booking.phone].tickets > 1}
-                  <span class="badge" style="background:#fef08a; color:#854d0e; font-size:0.75rem; align-self: flex-start; padding: 2px 8px; border-radius: 12px; border: 1px solid #fde047;">
+                  <span class="badge" style="background:#fef08a; color: #fef08a; font-size:0.75rem; align-self: flex-start; padding: 2px 8px; border-radius: 12px; border: 1px solid #fde047;">
                     ⭐ Wiederkehrender Kunde ({customerMap[booking.phone].tickets}. Auftrag)
                   </span>
                 {/if}
               </div>
               
               <!-- Action forms -->
-              <div class="card-actions">
+              <div class="card-actions" style="flex-wrap: wrap;">
+                <!-- Mechanic Assignment -->
+                <form method="POST" action="?/assignMechanic" use:enhance style="margin-right: auto; display:flex; align-items:center; gap:8px;">
+                  <input type="hidden" name="id" value={booking.id}>
+                  <label for="mech-{booking.id}" style="font-size:0.8rem; color:var(--color-text-muted);">🛠️ Mechaniker:</label>
+                  <select id="mech-{booking.id}" name="mechanic" class="chat-input" style="padding: 4px 8px; width:130px; font-size:0.85rem;" on:change={(e) => e.target.form.requestSubmit()}>
+                    <option value="Nicht zugewiesen" selected={!booking.mechanic || booking.mechanic === 'Nicht zugewiesen'}>Frei</option>
+                    <option value="Larsi" selected={booking.mechanic === 'Larsi'}>Larsi</option>
+                    <option value="Chef" selected={booking.mechanic === 'Chef'}>Chef</option>
+                    <option value="Azubi" selected={booking.mechanic === 'Azubi'}>Azubi</option>
+                  </select>
+                </form>
+
                 <div class="status-pills">
                   {#each statusOptions as option}
                     <form method="POST" action="?/updateStatus" use:enhance style="margin: 0;">
@@ -317,7 +329,7 @@
             </div>
 
             {#if booking.status === 'Abholbereit' || booking.status === 'Abgeschlossen' || booking.status === 'Fahrrad abgeholt'}
-            <div class="payment-section" style="margin-top: 16px; padding: 16px; background: #f8fafc; border: 1px dashed var(--border-color); border-radius: 8px;">
+            <div class="payment-section" style="margin-top: 16px; padding: 16px; background: var(--color-bg-alt); border: 1px dashed var(--border-color); border-radius: 8px;">
               <h4 style="margin-bottom: 8px;">💶 Abrechnung</h4>
               <form method="POST" action="?/checkoutBooking" use:enhance style="display: flex; gap: 8px; flex-wrap: wrap;" on:submit={() => setTimeout(() => alert('Zahlung wurde erfolgreich ins Kassenbuch verbucht!'), 200)}>
                 <input type="hidden" name="id" value={booking.id}>
@@ -472,9 +484,15 @@
       </div>
 
     {:else if currentTab === 'finanzen'}
-      <div class="controls-row">
-        <h2>Kassenbuch & Rechnungen</h2>
-        <form method="POST" action="?/addFinance" use:enhance style="display: flex; gap: 8px; flex-wrap:wrap;" on:submit={(e) => setTimeout(() => e.target.reset(), 100)}>
+      <div class="controls-row hide-print">
+        <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+          <h2>Kassenbuch & Rechnungen</h2>
+          <button class="btn btn-outline" on:click={() => window.print()}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+            Gesamtes Kassenbuch PDF
+          </button>
+        </div>
+        <form method="POST" action="?/addFinance" use:enhance style="display: flex; gap: 8px; flex-wrap:wrap; margin-top: 16px;" on:submit={(e) => setTimeout(() => e.target.reset(), 100)}>
           <input type="text" name="desc" placeholder="Leistung / Beschreibung" required class="chat-input" style="width: 250px;">
           <input type="number" step="0.01" name="amount" placeholder="Betrag (€)" required class="chat-input" style="width: 120px;">
           <button type="submit" class="btn-primary">+ Buchung eintragen</button>
@@ -492,27 +510,42 @@
         </div>
       </div>
 
-      <div class="booking-card" style="padding: 0; overflow: hidden;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Datum</th>
-              <th>Beschreibung / Leistung</th>
-              <th>Betrag</th>
-              <th>Beleg</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each finances as f}
+      <div class="printable-finance-table" style="width: 100%;">
+        <div class="print-header" style="display: none; padding: 32px 32px 24px; text-align: center; color: black; background: white;">
+          <h2 style="margin-bottom: 8px; font-size: 24px;">Fahrradschrauber Mülheim-Heimaterde</h2>
+          <h3 style="color: #444; margin-bottom: 12px;">Monatliche Finanzübersicht & Kassenbuch</h3>
+          <p style="font-size: 14px; color: #666;">Erstellt am: {new Intl.DateTimeFormat('de-DE', { dateStyle: 'long' }).format(new Date())}</p>
+          <hr style="margin-top: 24px; border: none; border-top: 2px solid #000;">
+        </div>
+
+        <div class="booking-card border-for-print" style="padding: 0; overflow: hidden; background: var(--color-bg-card);">
+          <table class="data-table">
+            <thead>
               <tr>
-                <td>{new Intl.DateTimeFormat('de-DE', {dateStyle: 'medium', timeStyle: 'short'}).format(new Date(f.date))}</td>
-                <td><strong>{f.desc}</strong></td>
-                <td style="color: #059669; font-weight: 700;">+ {f.amount.toFixed(2)} €</td>
-                <td><button class="btn-outline" style="padding: 4px 8px;" on:click={() => printFinanceReceipt(f)}>📄 PDF / Drucken</button></td>
+                <th>Datum</th>
+                <th>Beschreibung / Leistung</th>
+                <th>Betrag</th>
+                <th class="hide-print">Beleg</th>
               </tr>
-            {/each}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {#each finances as f}
+                <tr>
+                  <td>{new Intl.DateTimeFormat('de-DE', {dateStyle: 'medium', timeStyle: 'short'}).format(new Date(f.date))}</td>
+                  <td><strong>{f.desc}</strong></td>
+                  <td style="color: #10b981; font-weight: 700;">+ {f.amount.toFixed(2)} €</td>
+                  <td class="hide-print"><button class="btn-outline" style="padding: 4px 8px;" on:click={() => printFinanceReceipt(f)}>📄 Einzel-Beleg</button></td>
+                </tr>
+              {/each}
+            </tbody>
+            <tfoot class="print-only" style="display: none; background: #f8fafc; border-top: 2px solid #000;">
+              <tr>
+                <td colspan="2" style="text-align: right; font-weight: bold; padding: 16px; color: black;">Gesamtsumme:</td>
+                <td colspan="2" style="font-weight: bold; font-size: 1.2rem; padding: 16px; color: black;">{finances.reduce((sum, f) => sum + f.amount, 0).toFixed(2)} €</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       </div>
 
     {:else if currentTab === 'settings'}
@@ -522,24 +555,36 @@
 
       <div class="settings-grid">
         <div class="booking-card">
-          <h3>👤 Werkstatt Profil (Demo)</h3>
-          <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 16px;">Verwalten Sie die öffentlichen Anzeige-Einstellungen. (Werte werden noch nicht in der Datenbank gespeichert).</p>
+          <h3>👤 Werkstatt Profil</h3>
+          <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 16px;">Verwalten Sie die öffentlichen Anzeige-Einstellungen. Bei Urlaubsmodus werden Online-Buchungen blockiert.</p>
           
-          <div style="display: flex; flex-direction: column; gap: 12px;">
+          <div style="margin-bottom: 16px; font-weight: 500; font-size: 1.05rem;">
+            Aktueller Status: <span style="color: var(--color-primary);">{data.settings?.status || 'Geöffnet (Regulär)'}</span>
+          </div>
+
+          <form method="POST" action="?/updateSettings" use:enhance style="display: flex; flex-direction: column; gap: 12px;">
             <div>
-              <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Werkstatt Status (Notfall / Urlaub)</label>
-              <select class="chat-input" style="width: 100%;">
-                <option>Geöffnet (Regulär)</option>
-                <option>Urlaubsmodus (Keine neuen Termine)</option>
-                <option>Ausgebucht (Warteschlange)</option>
-              </select>
+              <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Werkstatt Status Ändern</label>
+              <div style="display: flex; gap: 8px;">
+                <select name="status" class="chat-input" style="width: 100%;" value={data.settings?.status || 'Geöffnet (Regulär)'}>
+                  <option value="Geöffnet (Regulär)">Geöffnet (Regulär)</option>
+                  <option value="Urlaubsmodus (Keine neuen Termine)">Urlaubsmodus (Keine neuen Termine)</option>
+                  <option value="Ausgebucht (Warteschlange)">Ausgebucht (Warteschlange)</option>
+                </select>
+                <input type="hidden" name="viewer_password" value={data.settings?.viewer_password || ''}>
+                <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Status Speichern</button>
+              </div>
             </div>
-            <div>
-              <label style="display:block; font-size:0.85rem; font-weight:600; margin-bottom:4px;">Live-Benachrichtigungen</label>
-              <label style="display: flex; align-items: center; gap: 8px; font-size: 0.9rem; cursor:pointer;">
-                <input type="checkbox" checked> Audio-Ping bei neuen Chat-Nachrichten
-              </label>
-            </div>
+          </form>
+
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--border-color);">
+            <h4 style="margin-bottom: 8px;">👁️ Gast-Zugang (Read-Only)</h4>
+            <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 12px;">Erstellen Sie ein Passwort für den Benutzer "gast", um jemanden gefahrlos ins Backend schauen zu lassen (Nur-Lese-Rechte).</p>
+            <form method="POST" action="?/updateSettings" use:enhance style="display: flex; gap: 8px;">
+              <input type="hidden" name="status" value={data.settings?.status || 'Geöffnet (Regulär)'}>
+              <input type="text" name="viewer_password" class="chat-input" placeholder="Passwort, z.B. fahrradGast" value={data.settings?.viewer_password || ''} style="width: 100%;">
+              <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Gast-Login Speichern</button>
+            </form>
           </div>
         </div>
 
@@ -600,7 +645,7 @@
       left: 0;
       top: 0;
       width: 100%;
-      background: white;
+      background: var(--color-bg-card);
       padding: 0;
       margin: 0;
     }
@@ -661,7 +706,7 @@
     border-color: #fca5a5;
   }
   .btn-danger:hover {
-    background: #fef2f2;
+    background: rgba(220, 38, 38, 0.1);
     border-color: #dc2626;
   }
 
@@ -678,7 +723,7 @@
     top: 76px;
     left: 0;
     width: 100%;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(31, 41, 55, 0.98);;
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-color);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);
@@ -834,7 +879,7 @@
   }
 
   .dev-tools {
-    background: #f8fafc;
+    background: var(--color-bg-alt);
     border: 1px dashed #94a3b8;
     border-radius: var(--radius-md);
     padding: 20px;
@@ -844,12 +889,12 @@
   .dev-tools h3 {
     margin-bottom: 8px;
     font-size: 1.1rem;
-    color: #334155;
+    color: #cbd5e1;
   }
   
   .dev-tools p {
     font-size: 0.9rem;
-    color: #64748b;
+    color: var(--color-text-muted);
     margin-bottom: 16px;
   }
 
@@ -908,7 +953,7 @@
     font-size: 0.95rem;
   }
   .data-table th {
-    background: #f8fafc;
+    background: var(--color-bg-alt);
     color: var(--color-text-muted);
     font-weight: 600;
     text-transform: uppercase;
@@ -926,7 +971,7 @@
     border-bottom: none;
   }
   .row-alert {
-    background: #fef2f2;
+    background: rgba(220, 38, 38, 0.1);
   }
 
   .booking-card {
@@ -1017,7 +1062,7 @@
   }
 
   .delete-btn:hover {
-    background: #fef2f2;
+    background: rgba(220, 38, 38, 0.1);
   }
 
   .booking-details {
@@ -1062,7 +1107,7 @@
     height: 28px;
     border-radius: 50%;
     color: #059669;
-    background: #d1fae5;
+    background: rgba(16, 185, 129, 0.1);
     text-decoration: none !important;
     transition: background 0.2s, transform 0.2s;
   }
@@ -1123,7 +1168,7 @@
     transition: background 0.2s;
   }
   .chat-list-item:hover { background: rgba(0,0,0,0.02); }
-  .chat-list-item.selected { background: white; border-left: 4px solid var(--color-primary); padding-left: 12px; }
+  .chat-list-item.selected { background: var(--color-bg-card); border-left: 4px solid var(--color-primary); padding-left: 12px; }
   
   .chat-list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; font-size: 1rem; color: var(--color-text); }
   .chat-preview { font-size: 0.85rem; color: var(--color-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px; }
@@ -1134,7 +1179,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    background: white;
+    background: var(--color-bg-card);
   }
   .chat-header {
     padding: 16px 24px;
@@ -1142,12 +1187,12 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: #f8fafc;
+    background: var(--color-bg-alt);
   }
   .chat-header h3 { margin: 0; font-size: 1.1rem; color: var(--color-text); }
   
   .chat-ticket { font-size: 0.85rem; color: var(--color-text-muted); }
-  .chat-ticket code { background: white; padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--color-primary); font-weight: bold; }
+  .chat-ticket code { background: var(--color-bg-card); padding: 2px 6px; border-radius: 4px; border: 1px solid var(--border-color); color: var(--color-primary); font-weight: bold; }
   
   .active-chat-history {
     flex: 1;
@@ -1160,7 +1205,7 @@
   }
   .chat-form {
     padding: 16px 24px;
-    background: #f8fafc;
+    background: var(--color-bg-alt);
     border-top: 1px solid var(--border-color);
     display: flex;
     gap: 12px;
@@ -1183,16 +1228,16 @@
     font-size: 0.95rem;
   }
   .msg-customer {
-    background: white;
+    background: var(--color-bg-card);
     border: 1px solid var(--border-color);
     align-self: flex-start;
     border-bottom-left-radius: 2px;
     box-shadow: 0 1px 2px rgba(0,0,0,0.05);
   }
   .msg-shop {
-    background: #dbeafe;
-    color: #1e3a8a;
-    border: 1px solid #bfdbfe;
+    background: rgba(59, 130, 246, 0.1);
+    color: #93c5fd;
+    border: 1px solid rgba(59, 130, 246, 0.3);
     align-self: flex-end;
     border-bottom-right-radius: 2px;
   }

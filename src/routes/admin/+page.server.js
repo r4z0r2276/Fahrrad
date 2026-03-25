@@ -9,17 +9,19 @@ export const load = async ({ cookies }) => {
     const { data: iData } = await supabase.from('inventory').select('*');
     const { data: fData } = await supabase.from('finances').select('*').order('date', { ascending: true });
     const { data: nData } = await supabase.from('notes').select('*').order('id', { ascending: false }).limit(1);
+    const { data: sData } = await supabase.from('settings').select('*').eq('id', 'shop').single();
     
     return {
       bookings: bData || [],
       inventory: iData || [],
       finances: fData || [],
       notes: nData || [],
+      settings: sData || { status: 'Geöffnet (Regulär)' },
       role
     };
   } catch (e) {
     console.error("Error reading database:", e);
-    return { bookings: [], inventory: [], finances: [], notes: [], role };
+    return { bookings: [], inventory: [], finances: [], notes: [], settings: { status: 'Geöffnet (Regulär)' }, role };
   }
 };
 
@@ -191,6 +193,20 @@ export const actions = {
     }
   },
 
+  assignMechanic: async ({ request }) => {
+    const data = await request.formData();
+    const id = data.get('id');
+    const mechanic = data.get('mechanic');
+
+    if (!id || !mechanic) return;
+
+    try {
+      await supabase.from('bookings').update({ mechanic: mechanic.toString() }).eq('id', id);
+    } catch (e) {
+      console.error("Error assigning mechanic:", e);
+    }
+  },
+
   deleteBooking: async ({ request, cookies }) => {
     if (cookies.get('adminSession') !== 'dev') return;
 
@@ -204,6 +220,16 @@ export const actions = {
     } catch (e) {
       console.error("Error deleting booking:", e);
     }
+  },
+
+  updateSettings: async ({ request }) => {
+    const data = await request.formData();
+    const status = data.get('status');
+    if (!status) return;
+    try {
+      const { error } = await supabase.from('settings').upsert({ id: 'shop', status: status.toString() });
+      if (error) console.error("Database upsert error in settings:", error);
+    } catch (e) { console.error(e); }
   },
 
   clearAll: async ({ cookies }) => {

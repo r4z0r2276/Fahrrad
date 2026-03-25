@@ -71,14 +71,15 @@
     z-index: 1000;
     transition: all 0.3s ease;
     padding: 20px 0;
-    background: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(8px);
+    background: rgba(15, 17, 21, 0.90); /* Dark carbon background */
+    backdrop-filter: blur(12px);
     border-bottom: 1px solid var(--border-color);
   }
 
   .header.scrolled {
     padding: 12px 0;
     box-shadow: var(--shadow-sm);
+    background: rgba(15, 17, 21, 0.98);
   }
 
   .header-content {
@@ -103,6 +104,7 @@
     height: 44px;
     width: auto;
     object-fit: contain;
+    filter: brightness(0) invert(1); /* Forces dark logos to become white for dark mode */
   }
 
   .nav-links {
@@ -151,7 +153,7 @@
     top: 100%;
     left: 0;
     width: 100%;
-    background: rgba(255, 255, 255, 0.98);
+    background: rgba(31, 41, 55, 0.98);;
     backdrop-filter: blur(16px);
     border-bottom: 1px solid var(--border-color);
     box-shadow: 0 10px 20px rgba(0,0,0,0.1);

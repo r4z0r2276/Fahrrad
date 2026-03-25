@@ -78,7 +78,7 @@
   }
 
   .error-msg {
-    background: #fef2f2;
+    background: rgba(220, 38, 38, 0.1);
     color: #dc2626;
     padding: 12px 16px;
     border-radius: var(--radius-md);

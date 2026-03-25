@@ -60,7 +60,7 @@
 
   .subtitle {
     font-size: 1.125rem;
-    color: var(--color-text-muted);
+    color: #cbd5e1; /* Much brighter slate/gray */
     max-width: 600px;
     margin-bottom: 40px;
     font-weight: 400;
