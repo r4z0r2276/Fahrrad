@@ -1262,5 +1262,38 @@
       font-size: 0.75rem;
       text-align: center;
     }
+
+    .booking-card {
+      padding: 16px;
+      font-size: 0.95rem;
+    }
+
+    .controls-row h2 {
+      font-size: 1.35rem;
+      width: 100%;
+    }
+
+    /* Make Forms wrap into full-width columns on mobile */
+    .controls-row form, 
+    .payment-section form,
+    .chat-form form {
+      flex-direction: column !important;
+      align-items: stretch !important;
+      width: 100%;
+    }
+
+    /* Inputs & Buttons full width */
+    .chat-input, .btn-primary, .btn-outline {
+      width: 100% !important;
+      font-size: 1rem; /* Verhindert iOS Auto-Zoom */
+    }
+
+    /* Wrap tables to scroll instead of breaking layout */
+    .data-table {
+      display: block;
+      width: 100%;
+      overflow-x: auto;
+      white-space: nowrap;
+    }
   }
 </style>
