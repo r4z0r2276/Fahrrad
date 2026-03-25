@@ -150,8 +150,9 @@
       </button>
     </div>
 
-    {#if currentTab === 'cockpit'}
-      <div class="controls-row">
+    <fieldset disabled={data.role === 'viewer'} style="border:none; margin:0; padding:0;">
+      {#if currentTab === 'cockpit'}
+        <div class="controls-row">
         <h2>Management Cockpit</h2>
         <p class="text-muted">Willkommen zurück. Hier ist die Zusammenfassung für heute.</p>
       </div>
@@ -606,6 +607,7 @@
         {/if}
       </div>
     {/if}
+    </fieldset>
   </main>
 </div>
 

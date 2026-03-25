@@ -23,17 +23,22 @@ export const actions = {
     }
 
     // Dynamic viewer login
+    let validViewer = false;
     try {
       if (username.toLowerCase() === 'gast') {
         const { data: sData } = await supabase.from('settings').select('*').eq('id', 'shop').single();
         if (sData && sData.viewer_password && password === sData.viewer_password) {
-          cookies.set('adminSession', 'viewer', {
-            path: '/', httpOnly: true, sameSite: 'strict', maxAge: 60 * 60 * 24 
-          });
-          throw redirect(303, '/admin');
+          validViewer = true;
         }
       }
     } catch(e) { console.error("Viewer login error:", e); }
+
+    if (validViewer) {
+      cookies.set('adminSession', 'viewer', {
+        path: '/', httpOnly: true, sameSite: 'strict', maxAge: 60 * 60 * 24 
+      });
+      throw redirect(303, '/admin');
+    }
 
     return fail(400, { error: 'Falscher Benutzername oder Passwort' });
   }

@@ -26,7 +26,8 @@ export const load = async ({ cookies }) => {
 };
 
 export const actions = {
-  replyMessage: async ({ request }) => {
+  replyMessage: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const id = data.get('id');
     const message = data.get('message');
@@ -49,7 +50,8 @@ export const actions = {
     }
   },
 
-  saveNote: async ({ request }) => {
+  saveNote: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const text = data.get('text');
     if (text !== null) {
@@ -57,7 +59,8 @@ export const actions = {
     }
   },
 
-  checkoutBooking: async ({ request }) => {
+  checkoutBooking: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const id = data.get('id');
     const desc = data.get('desc');
@@ -80,7 +83,8 @@ export const actions = {
     } catch(e) { console.error(e); }
   },
 
-  createOfflineBooking: async ({ request }) => {
+  createOfflineBooking: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const name = data.get('name');
     const phone = data.get('phone');
@@ -104,7 +108,8 @@ export const actions = {
     } catch (e) { console.error(e); }
   },
 
-  addInventory: async ({ request }) => {
+  addInventory: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const name = data.get('name');
     const min = data.get('min');
@@ -123,7 +128,8 @@ export const actions = {
     } catch(e) { console.error(e); }
   },
 
-  updateInventoryCount: async ({ request }) => {
+  updateInventoryCount: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const id = data.get('id');
     const change = parseInt(data.get('change')?.toString() || '0');
@@ -138,7 +144,8 @@ export const actions = {
     } catch(e) { console.error(e); }
   },
 
-  addFinance: async ({ request }) => {
+  addFinance: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const desc = data.get('desc');
     const amount = data.get('amount');
@@ -156,6 +163,7 @@ export const actions = {
   },
 
   generateDemoBooking: async ({ cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     if (cookies.get('adminSession') !== 'dev') return;
 
     try {
@@ -179,7 +187,8 @@ export const actions = {
     }
   },
 
-  updateStatus: async ({ request }) => {
+  updateStatus: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const id = data.get('id');
     const newStatus = data.get('status');
@@ -193,7 +202,8 @@ export const actions = {
     }
   },
 
-  assignMechanic: async ({ request }) => {
+  assignMechanic: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const id = data.get('id');
     const mechanic = data.get('mechanic');
@@ -222,17 +232,22 @@ export const actions = {
     }
   },
 
-  updateSettings: async ({ request }) => {
+  updateSettings: async ({ request, cookies }) => {
+    if (cookies.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const status = data.get('status');
+    const viewer_password = data.get('viewer_password');
     if (!status) return;
     try {
-      const { error } = await supabase.from('settings').upsert({ id: 'shop', status: status.toString() });
+      const payload = { id: 'shop', status: status.toString() };
+      if (viewer_password !== null) payload.viewer_password = viewer_password.toString();
+      const { error } = await supabase.from('settings').upsert(payload);
       if (error) console.error("Database upsert error in settings:", error);
     } catch (e) { console.error(e); }
   },
 
   clearAll: async ({ cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
     if (cookies.get('adminSession') === 'dev') {
       try {
         await supabase.from('bookings').delete().neq('id', '0');

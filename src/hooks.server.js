@@ -6,7 +6,7 @@ export const handle = async ({ event, resolve }) => {
     const sessionCookie = event.cookies.get('adminSession');
     
     // If not logged in and not already on the login page, redirect to login
-    if (sessionCookie !== 'admin' && sessionCookie !== 'dev' && event.url.pathname !== '/admin/login') {
+    if (sessionCookie !== 'admin' && sessionCookie !== 'dev' && sessionCookie !== 'viewer' && event.url.pathname !== '/admin/login') {
       throw redirect(303, '/admin/login');
     }
   }
