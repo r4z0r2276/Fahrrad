@@ -8,7 +8,7 @@ export const load = async ({ cookies }) => {
     const { data: bData } = await supabase.from('bookings').select('*').order('createdAt', { ascending: false });
     const { data: iData } = await supabase.from('inventory').select('*');
     const { data: fData } = await supabase.from('finances').select('*').order('date', { ascending: true });
-    const { data: nData } = await supabase.from('notes').select('*').order('id', { ascending: false }).limit(1);
+    const { data: nData } = await supabase.from('notes').select('*').order('id', { ascending: false }).limit(50);
     const { data: sData } = await supabase.from('settings').select('*').eq('id', 'shop').single();
     
     return {
@@ -59,6 +59,15 @@ export const actions = {
     }
   },
 
+  deleteNote: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
+    const data = await request.formData();
+    const id = data.get('id');
+    if (id) {
+      await supabase.from('notes').delete().eq('id', id);
+    }
+  },
+
   checkoutBooking: async ({ request, cookies }) => {
     if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
@@ -89,6 +98,7 @@ export const actions = {
     const name = data.get('name');
     const phone = data.get('phone');
     const bikeType = data.get('bikeType');
+    const problem = data.get('problem') || 'Offline im Laden abgegeben.';
     
     if (!name || !bikeType) return;
 
@@ -100,7 +110,7 @@ export const actions = {
         name: name.toString().trim(),
         phone: phone ? phone.toString().trim() : 'Keine Angabe',
         bikeType: bikeType.toString().trim(),
-        problem: 'Offline im Laden abgegeben.',
+        problem: problem.toString().trim(),
         status: 'Neu',
         createdAt: new Date().toISOString(),
         messages: [{ sender: 'System', text: 'Offline-Ticket manuell in der Filiale generiert.', timestamp: new Date().toISOString() }]
@@ -202,20 +212,7 @@ export const actions = {
     }
   },
 
-  assignMechanic: async ({ request, cookies }) => {
-    if (cookies?.get('adminSession') === 'viewer') return;
-    const data = await request.formData();
-    const id = data.get('id');
-    const mechanic = data.get('mechanic');
 
-    if (!id || !mechanic) return;
-
-    try {
-      await supabase.from('bookings').update({ mechanic: mechanic.toString() }).eq('id', id);
-    } catch (e) {
-      console.error("Error assigning mechanic:", e);
-    }
-  },
 
   deleteBooking: async ({ request, cookies }) => {
     if (cookies.get('adminSession') !== 'dev') return;

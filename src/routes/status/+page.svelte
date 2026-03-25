@@ -95,12 +95,6 @@
                   <p class="status-desc">{resultInfo.text}</p>
                 </div>
               </div>
-
-              {#if form.ticketInfo.mechanic && form.ticketInfo.mechanic !== 'Nicht zugewiesen'}
-                <div class="mechanic-badge animate-in delay-200" style="display:flex; align-items:center; gap:8px; background: rgba(249, 115, 22, 0.1); color: #fed7aa; padding: 12px 24px; border-radius: 12px; font-size: 1rem; margin-bottom: 32px; border: 1px solid rgba(249, 115, 22, 0.3);">
-                  <span style="font-size: 1.25rem;">🛠️</span> Euer Mechaniker <strong>{form.ticketInfo.mechanic}</strong> hat das Rad übernommen!
-                </div>
-              {/if}
               
               {#if form.ticketInfo.status === 'Abholbereit' || form.ticketInfo.status === 'Fahrrad abgeholt' || form.ticketInfo.status === 'Abgeschlossen'}
                 <div class="cx-grid">
@@ -199,14 +193,14 @@
                     </div>
                     <div class="pass-field">
                       <span class="p-label">Eingangsdatum</span>
-                      <span class="p-value">{new Intl.DateTimeFormat('de-DE', {dateStyle: 'medium'}).format(new Date(form.ticketInfo.date))}</span>
+                      <span class="p-value">{form.ticketInfo.createdAt ? new Intl.DateTimeFormat('de-DE', {dateStyle: 'medium'}).format(new Date(form.ticketInfo.createdAt)) : 'Unbekannt'}</span>
                     </div>
                   </div>
 
                   <div class="pass-row">
                     <div class="pass-field" style="width: 100%;">
                       <span class="p-label">Gemeldetes Problem & Diagnose</span>
-                      <div class="p-value-box">{form.ticketInfo.problem}</div>
+                      <div class="p-value-box">{form.ticketInfo.problem && form.ticketInfo.problem !== 'undefined' ? form.ticketInfo.problem : 'Keine Diagnose hinterlegt'}</div>
                     </div>
                   </div>
 
@@ -485,20 +479,21 @@
   
   /* Digital Pass UI */
   .digital-pass {
-    background: linear-gradient(145deg, #ffffff, #f8fafc);
+    background: var(--color-bg-card);
     border: 1px solid var(--border-color);
     border-radius: 16px;
     overflow: hidden;
     position: relative;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    box-shadow: var(--shadow-lg);
   }
   .pass-header {
-    background: var(--color-text);
-    color: white;
+    background: var(--color-bg-alt);
+    color: var(--color-text);
     padding: 16px 24px;
     display: flex;
     justify-content: space-between;
     align-items: center;
+    border-bottom: 1px solid var(--border-color);
   }
   .pass-title {
     font-size: 0.85rem;
@@ -510,9 +505,11 @@
     font-size: 1.25rem;
     font-weight: bold;
     letter-spacing: 2px;
-    background: rgba(255,255,255,0.1);
+    background: var(--color-bg);
+    color: var(--color-primary);
     padding: 4px 12px;
     border-radius: 6px;
+    border: 1px solid var(--border-color);
   }
   .pass-body {
     padding: 24px;

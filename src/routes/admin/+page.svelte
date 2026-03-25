@@ -12,7 +12,8 @@
   // Real Data from Server
   $: inventory = data.inventory || [];
   $: finances = data.finances || [];
-  $: notesText = data.notes && data.notes.length > 0 ? data.notes[0].text : '';
+  $: notes = data.notes || [];
+  $: notesText = notes.length > 0 ? notes[0].text : '';
 
   let printReceiptData = null;
   function printFinanceReceipt(f) {
@@ -77,6 +78,28 @@
       case 'Abgeschlossen': return 'status-done';
       default: return 'status-new';
     }
+  }
+  // Search & Inventory Helpers
+  $: lowStockItems = inventory.filter(i => i.count < i.min);
+  let globalSearchQuery = '';
+
+  function downloadCSV() {
+    const header = ['ID', 'Datum', 'Beleg-Text', 'Umsatz (EUR)'];
+    const rows = finances.map(f => [
+      f.id,
+      new Date(f.date).toLocaleDateString('de-DE'),
+      '"' + f.desc.replace(/"/g, '""') + '"',
+      f.amount.toFixed(2).replace('.', ',')
+    ]);
+    const csvContent = [header, ...rows].map(e => e.join(';')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', 'Kassenbuch_Export.csv');
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   }
 </script>
 
@@ -175,12 +198,72 @@
         </div>
       </div>
 
+      {#if lowStockItems.length > 0}
+        <div class="alert-box" style="background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5; padding: 16px 24px; border-radius: 12px; margin-bottom: 24px; display: flex; align-items: center; gap: 16px;">
+          <span style="font-size: 1.5rem;">⚠️</span>
+          <div>
+            <strong style="display: block; font-size: 1.1rem; margin-bottom: 4px;">Inventar-Warnung!</strong>
+            <span>{lowStockItems.length} Ersatzteil(e) sind unter dem Mindestbestand und sollten nachbestellt werden.</span>
+          </div>
+          <button class="btn-outline" style="margin-left: auto; border-color: #ef4444; color: #fca5a5;" on:click={() => currentTab = 'lager'}>Zum Lager</button>
+        </div>
+      {/if}
+
+      <div class="booking-card" style="margin-bottom: 24px;">
+        <h3 style="margin-bottom: 16px;">🔍 Globale Ticket-Suche</h3>
+        <input type="text" bind:value={globalSearchQuery} class="chat-input" style="width: 100%; border-color: var(--color-primary);" placeholder="Name, Ticket-ID oder Telefon eingeben...">
+        {#if globalSearchQuery.trim() !== ''}
+          <div class="search-results" style="margin-top: 16px; display: grid; gap: 12px;">
+            {#each bookings.filter(b => b.id.toLowerCase().includes(globalSearchQuery.toLowerCase()) || b.name.toLowerCase().includes(globalSearchQuery.toLowerCase()) || (b.phone && b.phone.includes(globalSearchQuery))) as match}
+               <div style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center; background: rgba(255,255,255,0.02);">
+                 <div>
+                   <strong style="color: white; font-size: 1.05rem;">{match.name}</strong> 
+                   <span class="text-muted" style="margin-left: 8px; font-family: monospace;">{match.id}</span>
+                   <div style="font-size: 0.85rem; color: var(--color-text-muted); margin-top: 4px;">{match.bikeType} &bull; {match.phone}</div>
+                 </div>
+                 <div style="text-align: right;">
+                   <span class="badge" style="margin-bottom: 8px; display: inline-block;">{match.status}</span>
+                   <div>
+                     <button class="btn-outline" style="font-size: 0.75rem; padding: 4px 8px;" on:click={() => { currentTab = 'auftraege'; currentFilter = match.status; setTimeout(() => { const el = document.getElementById('letter-' + match.name.charAt(0).toUpperCase()); if(el) el.scrollIntoView({behavior:'smooth'}); }, 100); }}>Anzeigen</button>
+                   </div>
+                 </div>
+               </div>
+            {:else}
+               <div style="padding: 12px; color: var(--color-text-muted); font-style: italic;">Keine Tickets gefunden für "{globalSearchQuery}"</div>
+            {/each}
+          </div>
+        {/if}
+      </div>
+
       <div class="settings-grid">
-        <div class="booking-card">
-          <h3 style="margin-bottom: 16px;">📌 Interne Werkstatt-Notizen</h3>
-          <form method="POST" action="?/saveNote" use:enhance>
-            <textarea name="text" class="chat-input" rows="5" style="width: 100%; margin-bottom: 12px; font-family: 'Comic Sans MS', cursive, sans-serif; background: rgba(234, 179, 8, 0.1); color: #fde047; border: 1px dashed rgba(234, 179, 8, 0.4);" placeholder="Hier To-Dos für Kollegen eintragen...">{notesText}</textarea>
-            <button type="submit" class="btn-primary" style="width: 100%;">Notiz Speichern</button>
+        <div class="booking-card" style="display:flex; flex-direction:column;">
+          <h3 style="margin-bottom: 16px;">📌 To-Do & Werkstatt-Notizen</h3>
+          
+          <div style="flex-grow:1; max-height: 250px; overflow-y:auto; margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; background: rgba(0,0,0,0.2);">
+            {#if notes.length === 0}
+               <p class="text-muted" style="text-align:center; margin-top: 20px;">Keine To-Dos vorhanden.</p>
+            {:else}
+               <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;">
+                 {#each notes as note}
+                   <li style="background: rgba(234, 179, 8, 0.1); border: 1px dashed rgba(234, 179, 8, 0.4); padding: 10px; border-radius: 6px; color: #fde047; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                     <span style="font-family: 'Comic Sans MS', cursive, sans-serif; font-size: 0.95rem; line-height: 1.4; word-break: break-word;">{note.text}</span>
+                     <form method="POST" action="?/deleteNote" use:enhance style="margin:0;">
+                       <input type="hidden" name="id" value={note.id}>
+                       <button type="submit" style="background:none; border:none; color:#10b981; cursor:pointer; padding: 4px;" title="Erledigt">
+                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                       </button>
+                     </form>
+                   </li>
+                 {/each}
+               </ul>
+            {/if}
+          </div>
+
+          <form method="POST" action="?/saveNote" use:enhance on:submit={(e) => setTimeout(() => e.target.reset(), 100)}>
+            <div style="display:flex; gap:8px;">
+              <input type="text" name="text" class="chat-input" required style="flex-grow:1;" placeholder="Neues To-Do...">
+              <button type="submit" class="btn-primary">Hinzufügen</button>
+            </div>
           </form>
         </div>
 
@@ -191,6 +274,7 @@
             <input type="text" name="name" placeholder="Name des Kunden" required class="chat-input" style="width: 100%;">
             <input type="tel" name="phone" placeholder="Telefon (optional)" class="chat-input" style="width: 100%;">
             <input type="text" name="bikeType" placeholder="Fahrrad-Modell" required class="chat-input" style="width: 100%;">
+            <textarea name="problem" class="chat-input" rows="2" placeholder="Aufgabe / Problem" style="width: 100%;"></textarea>
             <button type="submit" class="btn-primary" style="margin-top: 8px;">Ticket erstellen & Drucken</button>
           </form>
         </div>
@@ -273,18 +357,6 @@
               
               <!-- Action forms -->
               <div class="card-actions" style="flex-wrap: wrap;">
-                <!-- Mechanic Assignment -->
-                <form method="POST" action="?/assignMechanic" use:enhance style="margin-right: auto; display:flex; align-items:center; gap:8px;">
-                  <input type="hidden" name="id" value={booking.id}>
-                  <label for="mech-{booking.id}" style="font-size:0.8rem; color:var(--color-text-muted);">🛠️ Mechaniker:</label>
-                  <select id="mech-{booking.id}" name="mechanic" class="chat-input" style="padding: 4px 8px; width:130px; font-size:0.85rem;" on:change={(e) => e.target.form.requestSubmit()}>
-                    <option value="Nicht zugewiesen" selected={!booking.mechanic || booking.mechanic === 'Nicht zugewiesen'}>Frei</option>
-                    <option value="Larsi" selected={booking.mechanic === 'Larsi'}>Larsi</option>
-                    <option value="Chef" selected={booking.mechanic === 'Chef'}>Chef</option>
-                    <option value="Azubi" selected={booking.mechanic === 'Azubi'}>Azubi</option>
-                  </select>
-                </form>
-
                 <div class="status-pills">
                   {#each statusOptions as option}
                     <form method="POST" action="?/updateStatus" use:enhance style="margin: 0;">
@@ -491,6 +563,10 @@
           <button class="btn btn-outline" on:click={() => window.print()}>
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
             Gesamtes Kassenbuch PDF
+          </button>
+          <button class="btn btn-outline" on:click={downloadCSV}>
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" style="margin-right: 8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+            Excel Export (.csv)
           </button>
         </div>
         <form method="POST" action="?/addFinance" use:enhance style="display: flex; gap: 8px; flex-wrap:wrap; margin-top: 16px;" on:submit={(e) => setTimeout(() => e.target.reset(), 100)}>

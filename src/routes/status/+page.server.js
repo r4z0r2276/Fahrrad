@@ -11,7 +11,7 @@ export const actions = {
     queryId = queryId.toString().toUpperCase().trim();
 
     try {
-      const { data: booking } = await supabase.from('bookings').select('id, "bikeType", status, "createdAt", messages').eq('id', queryId).single();
+      const { data: booking } = await supabase.from('bookings').select('id, "bikeType", status, problem, "createdAt", messages').eq('id', queryId).single();
       
       if (!booking) {
         return { error: 'Kein Auftrag unter dieser Ticket-ID gefunden. Bitte prüfen Sie Ihre Eingabe.' };
@@ -23,7 +23,8 @@ export const actions = {
           id: booking.id,
           bikeType: booking.bikeType,
           status: booking.status,
-          date: booking.createdAt,
+          problem: booking.problem,
+          createdAt: booking.createdAt,
           messages: booking.messages || []
         }
       };
@@ -44,7 +45,7 @@ export const actions = {
     }
 
     try {
-      const { data: booking } = await supabase.from('bookings').select('id, "bikeType", status, "createdAt", messages').eq('id', id.toString()).single();
+      const { data: booking } = await supabase.from('bookings').select('id, "bikeType", status, problem, "createdAt", messages').eq('id', id.toString()).single();
       
       if (!booking) {
         return { error: 'Ticket nicht gefunden.' };
@@ -57,7 +58,7 @@ export const actions = {
         timestamp: new Date().toISOString()
       });
 
-      await supabase.from('bookings').update({ messages: msgs }).eq('id', booking.id);
+      await supabase.from('bookings').update({ messages: msgs }).eq('id', id.toString());
 
       return { 
         success: true, 
@@ -66,7 +67,8 @@ export const actions = {
           id: booking.id,
           bikeType: booking.bikeType,
           status: booking.status,
-          date: booking.createdAt,
+          problem: booking.problem,
+          createdAt: booking.createdAt,
           messages: msgs
         }
       };
