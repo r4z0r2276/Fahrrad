@@ -13,17 +13,25 @@
         <h4>Navigation</h4>
         <a href="#home">Startseite</a>
         <a href="#services">Leistungen</a>
-        <a href="#contact">Kontakt</a>
+        <a href="/kontakt">Kontakt</a>
       </div>
       
       <div class="link-group">
         <h4>Rechtliches</h4>
-        <a href="#impressum">Impressum</a>
-        <a href="#datenschutz">Datenschutz</a>
+        <a href="/impressum">Impressum</a>
+        <a href="/datenschutz">Datenschutz</a>
       </div>
     </div>
   </div>
   
+  <div class="footer-cta">
+    <div class="container" style="text-align: center; padding: 48px 24px;">
+      <h3 style="font-size: 1.8rem; margin-bottom: 12px;">Fragen oder einen Termin?</h3>
+      <p style="color: var(--color-text-muted); margin-bottom: 24px;">Wir freuen uns auf Ihren Besuch in der Werkstatt.</p>
+      <a href="/kontakt" class="btn btn-primary" style="padding: 14px 36px; font-size: 1.05rem;">Kontakt & Anfahrt</a>
+    </div>
+  </div>
+
   <div class="footer-bottom">
     <div class="container">
       <p>&copy; {new Date().getFullYear()} Fahrradschrauber Mülheim-Heimaterde. Alle Rechte vorbehalten.</p>

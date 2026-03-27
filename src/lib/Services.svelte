@@ -11,9 +11,9 @@
       icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>',
     },
     {
-      title: 'Urlaubs- & Saison-Check',
-      desc: 'Umfassende Prüfung aller wichtigen Bauteile, damit du auf der nächsten Tour verschleißfrei und sicher unterwegs bist.',
-      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+      title: 'E-Bike Mechanik',
+      desc: 'E-Bikes sind willkommen! Wir übernehmen alle mechanischen Arbeiten wie Bremsen, Schaltung, Kette und Bereifung. Bitte beachten: Reparaturen an Motor, Akku oder Elektronik können wir nicht durchführen.',
+      icon: '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
     }
   ];
 </script>

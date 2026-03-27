@@ -1,25 +1,25 @@
 <script>
   const reviews = [
     {
-      name: "Sabine M.",
-      bike: "City E-Bike",
+      name: "Christopher Klauer",
+      bike: "Rennrad (Radon)",
       rating: 5,
-      text: "Fantastischer Service! Morgens mit schleifenden Bremsen abgegeben, abends schon eine Nachricht auf dem Handy gehabt, dass ich das Rad wieder abholen kann. Der digitale Status-Pass ist genial!",
-      date: "vor 2 Wochen"
-    },
-    {
-      name: "Thomas W.",
-      bike: "Gravel Bike",
-      rating: 5,
-      text: "Lars weiß, was er tut. Endlich mal eine Werkstatt, die sich auch mit ausgefallenen Schaltungen auskennt. Faire Preise und super transparente Kommunikation.",
+      text: "Super Service! Ich bin mit meinem Rennrad von Radon vorbeigekommen. Das Fahrrad war leider von Werk aus komplett fehlerhaft montiert. Bremse, Schaltung und alles wurde fachgerecht eingestellt. Absolut empfehlenswert!",
       date: "vor 1 Monat"
     },
     {
-      name: "Klaus D.",
-      bike: "Mountainbike",
+      name: "Christian Wehner",
+      bike: "Fahrrad",
       rating: 5,
-      text: "Kann ich nur empfehlen! Die Inspektion wurde rasend schnell & extrem gründlich durchgeführt. Mein Rad fährt sich jetzt wieder wie am ersten Tag. Top Team in Heimaterde!",
-      date: "vor 2 Monaten"
+      text: "Super Service! Hat total kurzfristig meine Bremsen erneuert und das zu einem unschlagbaren Preis. Gerne immer wieder.",
+      date: "vor 1 Jahr"
+    },
+    {
+      name: "Bettina Rust",
+      bike: "Fahrrad",
+      rating: 5,
+      text: "Danke lieber Lars für die schnelle Reparatur meines Fahrrades, es schaltet wieder perfekt! Sehr fairer Preis und sehr netter Kontakt! Wenn nötig, komme ich gerne wieder!",
+      date: "vor 2 Jahren"
     }
   ];
 
@@ -36,7 +36,7 @@
         <p class="text-muted">Vertrauen ist gut, Erfahrung ist besser. Das sagen Andere über unsere Werkstatt.</p>
       </div>
       <div class="rating-badge">
-        <div class="score">4.9 / 5.0</div>
+        <div class="score">5.0 / 5.0</div>
         <div class="stars">
           {#each starsArray as _}
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="#facc15" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>

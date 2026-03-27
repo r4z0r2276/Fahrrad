@@ -130,15 +130,8 @@
                       </div>
                       <div style="display: flex; justify-content: space-between; margin-top: 12px; padding-top: 8px; border-top: 1px dashed var(--border-color); font-weight: bold; font-size: 1.1rem;">
                         <span>Zahlbar vor Ort</span>
-                        <span style="color: var(--color-primary);">In bar oder EC</span>
+                        <span style="color: var(--color-primary);">Nur Barzahlung</span>
                       </div>
-
-                      <div class="print-footer" style="display: none; text-align: center; margin-top: 32px; font-size: 0.8rem; color: #666;">
-                        Vielen Dank für Ihren Besuch!<br>
-                        Bei Fragen zur Rechnung kontaktieren Sie uns bitte direkt.
-                      </div>
-
-                      <button class="btn btn-outline hide-print" style="width: 100%; margin-top: 16px;" on:click={() => window.print()}>🖨️ Als PDF / Drucken</button>
                     </div>
 
                     {#if form.ticketInfo.status === 'Abholbereit'}
@@ -208,10 +201,6 @@
                     <div class="pass-field">
                       <span class="p-label">Werkstatt-Filiale</span>
                       <span class="p-value">Mülheim-Heimaterde</span>
-                    </div>
-                    <div class="pass-field">
-                      <span class="p-label">Beleg-Status</span>
-                      <span class="p-value" style="color: var(--color-primary); font-weight: 700;">GÜLTIG</span>
                     </div>
                   </div>
                 </div>

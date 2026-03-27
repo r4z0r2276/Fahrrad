@@ -1,12 +1,12 @@
 <script>
   // List of common services
   const services = [
-    { id: 'inspektion', name: 'Große Inspektion (inkl. E-Bike Check)', minPrice: 70, maxPrice: 120 },
-    { id: 'schlauch', name: 'Schlauch / Reifen wechseln', minPrice: 15, maxPrice: 35 },
+    { id: 'reifenwechsel', name: 'Reifen & Schlauch (pro Reifen)', minPrice: 25, maxPrice: 45 },
+    { id: 'schlauch', name: 'Nur Schlauch wechseln', minPrice: 15, maxPrice: 20 },
     { id: 'bremsen', name: 'Bremsen einstellen / entlüften', minPrice: 20, maxPrice: 50 },
     { id: 'schaltung', name: 'Schaltung einstellen', minPrice: 15, maxPrice: 30 },
     { id: 'kette', name: 'Kette wechseln & Antrieb reinigen', minPrice: 25, maxPrice: 45 },
-    { id: 'licht', name: 'Lichtanlage reparieren', minPrice: 10, maxPrice: 40 }
+    { id: 'kurbel', name: 'Kurbel wechseln', minPrice: 30, maxPrice: 55 }
   ];
 
   let selectedServices = [];

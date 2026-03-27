@@ -20,6 +20,7 @@
     printReceiptData = f;
     setTimeout(() => window.print(), 100);
   }
+  let editingFinanceId = null;
 
   // Reactive variables for filtering and stats
   $: bookings = data.bookings;
@@ -159,12 +160,6 @@
       <button class="main-tab {currentTab === 'kunden' ? 'active-tab' : ''}" on:click={() => currentTab = 'kunden'}>
         👥 Kunden
       </button>
-      <button class="main-tab {currentTab === 'lager' ? 'active-tab' : ''}" on:click={() => currentTab = 'lager'}>
-        🧰 Lager
-        {#if inventory.some(i => i.count < i.min)}
-          <span class="unread-dot"></span>
-        {/if}
-      </button>
       <button class="main-tab {currentTab === 'finanzen' ? 'active-tab' : ''}" on:click={() => currentTab = 'finanzen'}>
         💶 Finanzen
       </button>
@@ -235,50 +230,7 @@
         {/if}
       </div>
 
-      <div class="settings-grid">
-        <div class="booking-card" style="display:flex; flex-direction:column;">
-          <h3 style="margin-bottom: 16px;">📌 To-Do & Werkstatt-Notizen</h3>
-          
-          <div style="flex-grow:1; max-height: 250px; overflow-y:auto; margin-bottom: 16px; border: 1px solid var(--border-color); border-radius: 8px; padding: 12px; background: rgba(0,0,0,0.2);">
-            {#if notes.length === 0}
-               <p class="text-muted" style="text-align:center; margin-top: 20px;">Keine To-Dos vorhanden.</p>
-            {:else}
-               <ul style="list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px;">
-                 {#each notes as note}
-                   <li style="background: rgba(234, 179, 8, 0.1); border: 1px dashed rgba(234, 179, 8, 0.4); padding: 10px; border-radius: 6px; color: #fde047; display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
-                     <span style="font-family: 'Comic Sans MS', cursive, sans-serif; font-size: 0.95rem; line-height: 1.4; word-break: break-word;">{note.text}</span>
-                     <form method="POST" action="?/deleteNote" use:enhance style="margin:0;">
-                       <input type="hidden" name="id" value={note.id}>
-                       <button type="submit" style="background:none; border:none; color:#10b981; cursor:pointer; padding: 4px;" title="Erledigt">
-                         <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                       </button>
-                     </form>
-                   </li>
-                 {/each}
-               </ul>
-            {/if}
-          </div>
 
-          <form method="POST" action="?/saveNote" use:enhance on:submit={(e) => setTimeout(() => e.target.reset(), 100)}>
-            <div style="display:flex; gap:8px;">
-              <input type="text" name="text" class="chat-input" required style="flex-grow:1;" placeholder="Neues To-Do...">
-              <button type="submit" class="btn-primary">Hinzufügen</button>
-            </div>
-          </form>
-        </div>
-
-        <div class="booking-card" style="border-left-color: var(--color-primary);">
-          <h3 style="margin-bottom: 16px;">🎫 Manueller Laufkunde (Offline)</h3>
-          <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 16px;">Erstelle intern ein neues Ticket für Kunden, die direkt in den Laden kommen.</p>
-          <form method="POST" action="?/createOfflineBooking" use:enhance class="chat-form" style="flex-direction: column; align-items: stretch; gap: 8px;" on:submit={(e) => { e.target.reset(); alert('✅ Offline-Ticket wurde erfolgreich angelegt!'); }}>
-            <input type="text" name="name" placeholder="Name des Kunden" required class="chat-input" style="width: 100%;">
-            <input type="tel" name="phone" placeholder="Telefon (optional)" class="chat-input" style="width: 100%;">
-            <input type="text" name="bikeType" placeholder="Fahrrad-Modell" required class="chat-input" style="width: 100%;">
-            <textarea name="problem" class="chat-input" rows="2" placeholder="Aufgabe / Problem" style="width: 100%;"></textarea>
-            <button type="submit" class="btn-primary" style="margin-top: 8px;">Ticket erstellen & Drucken</button>
-          </form>
-        </div>
-      </div>
 
     {:else if currentTab === 'auftraege'}
     <!-- Stats Cards -->
@@ -404,14 +356,11 @@
             {#if booking.status === 'Abholbereit' || booking.status === 'Abgeschlossen' || booking.status === 'Fahrrad abgeholt'}
             <div class="payment-section" style="margin-top: 16px; padding: 16px; background: var(--color-bg-alt); border: 1px dashed var(--border-color); border-radius: 8px;">
               <h4 style="margin-bottom: 8px;">💶 Abrechnung</h4>
-              <form method="POST" action="?/checkoutBooking" use:enhance style="display: flex; gap: 8px; flex-wrap: wrap;" on:submit={() => setTimeout(() => alert('Zahlung wurde erfolgreich ins Kassenbuch verbucht!'), 200)}>
+              <form method="POST" action="?/checkoutBooking" use:enhance style="display: flex; gap: 8px; flex-wrap: wrap;" on:submit={() => setTimeout(() => alert('Barzahlung wurde erfolgreich ins Kassenbuch verbucht!'), 200)}>
                 <input type="hidden" name="id" value={booking.id}>
+                <input type="hidden" name="method" value="Bar">
                 <input type="text" name="desc" value="Reparatur {booking.bikeType}" required class="chat-input" style="flex: 1; min-width: 150px;" placeholder="Leistung">
                 <input type="number" step="0.01" name="amount" placeholder="Betrag (€)" required class="chat-input" style="width: 100px;">
-                <select name="method" class="chat-input" style="width: 120px;">
-                  <option value="Bar">Barzahlung</option>
-                  <option value="EC">EC-Karte</option>
-                </select>
                 <button type="submit" class="btn-primary" style="padding: 8px 16px;">Kassieren & Buchen</button>
               </form>
             </div>
@@ -505,56 +454,6 @@
         {/each}
       </div>
 
-    {:else if currentTab === 'lager'}
-      <div class="controls-row">
-        <h2>Ersatzteil-Lager</h2>
-        <form method="POST" action="?/addInventory" use:enhance style="display: flex; gap: 8px; flex-wrap:wrap;" on:submit={(e) => setTimeout(() => e.target.reset(), 100)}>
-          <input type="text" name="name" placeholder="Artikel Name" required class="chat-input" style="width: 200px;">
-          <input type="number" name="min" placeholder="Warnung bei <" required class="chat-input" style="width: 130px;">
-          <input type="number" step="0.01" name="price" placeholder="Preis (€)" required class="chat-input" style="width: 100px;">
-          <button type="submit" class="btn-primary">+ Hinzufügen</button>
-        </form>
-      </div>
-
-      <div class="booking-card" style="padding: 0; overflow: hidden;">
-        <table class="data-table">
-          <thead>
-            <tr>
-              <th>Artikel / Bauteil</th>
-              <th>Bestand</th>
-              <th>Meldebestand (Min)</th>
-              <th>Verkaufspreis</th>
-              <th>Aktionen</th>
-            </tr>
-          </thead>
-          <tbody>
-            {#each inventory as item}
-              <tr class={item.count < item.min ? 'row-alert' : ''}>
-                <td><strong>{item.name}</strong>
-                  {#if item.count < item.min}
-                    <span class="badge badge-dev" style="background:#ef4444; margin-left: 8px;">NACHBESTELLEN</span>
-                  {/if}
-                </td>
-                <td style="font-size: 1.2rem; font-weight: 700;">{item.count}</td>
-                <td class="text-muted">{item.min}</td>
-                <td>{item.price.toFixed(2)} €</td>
-                <td style="display: flex; gap: 8px; flex-wrap:wrap;">
-                  <form method="POST" action="?/updateInventoryCount" use:enhance style="margin:0;">
-                    <input type="hidden" name="id" value={item.id}>
-                    <input type="hidden" name="change" value="-1">
-                    <button type="submit" class="btn-outline" style="padding: 4px 8px;" title="Verbauen">-1</button>
-                  </form>
-                  <form method="POST" action="?/updateInventoryCount" use:enhance style="margin:0;">
-                    <input type="hidden" name="id" value={item.id}>
-                    <input type="hidden" name="change" value="10">
-                    <button type="submit" class="btn-outline" style="padding: 4px 8px;" title="Liefern">+10</button>
-                  </form>
-                </td>
-              </tr>
-            {/each}
-          </tbody>
-        </table>
-      </div>
 
     {:else if currentTab === 'finanzen'}
       <div class="controls-row hide-print">
@@ -569,10 +468,28 @@
             Excel Export (.csv)
           </button>
         </div>
+
+        <!-- Finance Summary -->
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 20px; margin-bottom: 4px;">
+          <div style="display: flex; align-items: center; gap: 10px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.2); border-radius: 8px; padding: 10px 16px;">
+            <span style="font-size: 0.75rem; color: var(--color-text-muted); white-space: nowrap;">Umsatz</span>
+            <span style="font-size: 1.1rem; font-weight: 700; color: #10b981;">{finances.reduce((s,f) => s + (f.revenue ?? f.amount), 0).toFixed(2)} €</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; background: rgba(239,68,68,0.08); border: 1px solid rgba(239,68,68,0.2); border-radius: 8px; padding: 10px 16px;">
+            <span style="font-size: 0.75rem; color: var(--color-text-muted); white-space: nowrap;">Materialkosten</span>
+            <span style="font-size: 1.1rem; font-weight: 700; color: #f87171;">{finances.reduce((s,f) => s + (f.material_costs ?? 0), 0).toFixed(2)} €</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 10px; background: rgba(234,179,8,0.08); border: 1px solid rgba(234,179,8,0.2); border-radius: 8px; padding: 10px 16px;">
+            <span style="font-size: 0.75rem; color: var(--color-text-muted); white-space: nowrap;">Gewinn</span>
+            <span style="font-size: 1.1rem; font-weight: 700; color: {finances.reduce((s,f) => s + (f.revenue ?? f.amount) - (f.material_costs ?? 0), 0) >= 0 ? '#facc15' : '#f87171'};">{finances.reduce((s,f) => s + (f.revenue ?? f.amount) - (f.material_costs ?? 0), 0) >= 0 ? '+' : ''}{finances.reduce((s,f) => s + (f.revenue ?? f.amount) - (f.material_costs ?? 0), 0).toFixed(2)} €</span>
+          </div>
+        </div>
+
         <form method="POST" action="?/addFinance" use:enhance style="display: flex; gap: 8px; flex-wrap:wrap; margin-top: 16px;" on:submit={(e) => setTimeout(() => e.target.reset(), 100)}>
-          <input type="text" name="desc" placeholder="Leistung / Beschreibung" required class="chat-input" style="width: 250px;">
-          <input type="number" step="0.01" name="amount" placeholder="Betrag (€)" required class="chat-input" style="width: 120px;">
-          <button type="submit" class="btn-primary">+ Buchung eintragen</button>
+          <input type="text" name="desc" placeholder="Beschreibung (z.B. 'Bremsen Reparatur')" required class="chat-input" style="flex:1; min-width:200px;">
+          <input type="number" step="0.01" min="0" name="revenue" placeholder="Umsatz (€)" required class="chat-input" style="width:130px;">
+          <input type="number" step="0.01" min="0" name="material_costs" placeholder="Materialkosten (€)" class="chat-input" style="width:150px;">
+          <button type="submit" class="btn-primary">+ Eintragen</button>
         </form>
       </div>
 
@@ -600,18 +517,46 @@
             <thead>
               <tr>
                 <th>Datum</th>
-                <th>Beschreibung / Leistung</th>
-                <th>Betrag</th>
-                <th class="hide-print">Beleg</th>
+                <th>Beschreibung</th>
+                <th style="color: #10b981;">Umsatz</th>
+                <th style="color: #f87171;">Materialkosten</th>
+                <th style="color: #facc15;">Gewinn</th>
+                <th class="hide-print">Aktionen</th>
               </tr>
             </thead>
             <tbody>
               {#each finances as f}
+                {@const rev = f.revenue ?? (f.amount > 0 ? f.amount : 0)}
+                {@const costs = f.material_costs ?? 0}
+                {@const profit = rev - costs}
                 <tr>
                   <td>{new Intl.DateTimeFormat('de-DE', {dateStyle: 'medium', timeStyle: 'short'}).format(new Date(f.date))}</td>
-                  <td><strong>{f.desc}</strong></td>
-                  <td style="color: #10b981; font-weight: 700;">+ {f.amount.toFixed(2)} €</td>
-                  <td class="hide-print"><button class="btn-outline" style="padding: 4px 8px;" on:click={() => printFinanceReceipt(f)}>📄 Einzel-Beleg</button></td>
+                  {#if editingFinanceId === f.id}
+                    <td colspan="4">
+                      <form method="POST" action="?/updateFinance" use:enhance style="display:flex; gap:8px; flex-wrap:wrap;" on:submit={() => editingFinanceId = null}>
+                        <input type="hidden" name="id" value={f.id}>
+                        <input type="text" name="desc" value={f.desc} required class="chat-input" style="flex:1; min-width:140px;">
+                        <input type="number" step="0.01" min="0" name="revenue" value={rev} required class="chat-input" style="width:100px;" placeholder="Umsatz">
+                        <input type="number" step="0.01" min="0" name="material_costs" value={costs} class="chat-input" style="width:110px;" placeholder="Materialkosten">
+                        <button type="submit" class="btn-primary" style="padding:6px 12px;">Speichern</button>
+                        <button type="button" class="btn-outline" style="padding:6px 12px;" on:click={() => editingFinanceId = null}>Abbrechen</button>
+                      </form>
+                    </td>
+                  {:else}
+                    <td><strong>{f.desc}</strong></td>
+                    <td style="color: #10b981; font-weight: 600;">+ {rev.toFixed(2)} €</td>
+                    <td style="color: {costs > 0 ? '#f87171' : 'var(--color-text-muted)'};">{costs > 0 ? '- ' + costs.toFixed(2) + ' €' : '—'}</td>
+                    <td style="color: {profit >= 0 ? '#facc15' : '#f87171'}; font-weight: 700;">{profit >= 0 ? '+' : ''}{profit.toFixed(2)} €</td>
+                  {/if}
+                  <td class="hide-print" style="display:flex; gap:6px;">
+                    <button class="btn-outline" style="padding:4px 8px;" title="Bearbeiten" on:click={() => editingFinanceId = editingFinanceId === f.id ? null : f.id}>✏️</button>
+                    <form method="POST" action="?/deleteFinance" use:enhance style="margin:0;">
+                      <input type="hidden" name="id" value={f.id}>
+                      <button type="submit" class="delete-btn" title="Löschen" on:click={(e) => { if(!confirm('Eintrag wirklich löschen?')) e.preventDefault(); }}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                      </button>
+                    </form>
+                  </td>
                 </tr>
               {/each}
             </tbody>
@@ -714,6 +659,22 @@
 {/if}
 
 <style>
+  .delete-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(239,68,68,0.1);
+    border: 1px solid rgba(239,68,68,0.4);
+    color: #fca5a5;
+    border-radius: 6px;
+    padding: 4px 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .delete-btn:hover {
+    background: rgba(239,68,68,0.25);
+    border-color: #ef4444;
+  }
   @media print {
     body * { visibility: hidden; }
     .printable-receipt, .printable-receipt * { visibility: visible; }

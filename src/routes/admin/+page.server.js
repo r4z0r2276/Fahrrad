@@ -7,7 +7,9 @@ export const load = async ({ cookies }) => {
   try {
     const { data: bData } = await supabase.from('bookings').select('*').order('createdAt', { ascending: false });
     const { data: iData } = await supabase.from('inventory').select('*');
-    const { data: fData } = await supabase.from('finances').select('*').order('date', { ascending: true });
+    const { data: fData, error: fError } = await supabase.from('finances').select('*').order('date', { ascending: true });
+    if (fError) console.error("Finances fetch error:", fError);
+    if (fData && fData.length > 0) console.log("SAMPLE FINANCE ROW:", fData[0]);
     const { data: nData } = await supabase.from('notes').select('*').order('id', { ascending: false }).limit(50);
     const { data: sData } = await supabase.from('settings').select('*').eq('id', 'shop').single();
     
@@ -158,19 +160,65 @@ export const actions = {
     if (cookies?.get('adminSession') === 'viewer') return;
     const data = await request.formData();
     const desc = data.get('desc');
-    const amount = data.get('amount');
-    
-    if (!desc || !amount) return;
-    
+    const parseNum = (val) => parseFloat(val?.toString().replace(',', '.') || '0');
+    const revenue = parseNum(data.get('revenue'));
+    const material_costs = parseNum(data.get('material_costs'));
+    if (!desc) return;
+    const entry = {
+      id: Date.now().toString(),
+      date: new Date().toISOString(),
+      desc: desc.toString().trim(),
+      amount: revenue
+    };
+    console.log("INSERTING FINANCE:", { ...entry, revenue, material_costs });
+    let { error } = await supabase.from('finances').insert({ ...entry, revenue, material_costs });
+    if (error) {
+      console.error("SUPABASE INSERT ERROR (with new columns):", error);
+      console.log("FALLING BACK TO OLD INSERT (amount only)");
+      await supabase.from('finances').insert(entry);
+    } else {
+      console.log("SUPABASE INSERT SUCCESS (with new columns)");
+    }
+  },
+
+
+  deleteFinance: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
+    const data = await request.formData();
+    const id = data.get('id');
+    if (!id) return;
     try {
-      await supabase.from('finances').insert({
-        id: Date.now().toString(),
-        date: new Date().toISOString(),
-        desc: desc.toString().trim(),
-        amount: parseFloat(amount.toString())
-      });
+      await supabase.from('finances').delete().eq('id', id.toString());
     } catch(e) { console.error(e); }
   },
+
+  updateFinance: async ({ request, cookies }) => {
+    if (cookies?.get('adminSession') === 'viewer') return;
+    const data = await request.formData();
+    const id = data.get('id');
+    const desc = data.get('desc');
+    const parseNum = (val) => parseFloat(val?.toString().replace(',', '.') || '0');
+    const revenue = parseNum(data.get('revenue'));
+    const material_costs = parseNum(data.get('material_costs'));
+    if (!id || !desc) return;
+    
+    const entry = {
+      desc: desc.toString().trim(),
+      amount: revenue
+    };
+    try {
+      console.log("UPDATING FINANCE:", { ...entry, revenue, material_costs });
+      let { error } = await supabase.from('finances').update({ ...entry, revenue, material_costs }).eq('id', id.toString());
+      if (error) {
+        console.error("SUPABASE UPDATE ERROR (with new columns):", error);
+        console.log("FALLING BACK TO OLD UPDATE (amount only)");
+        await supabase.from('finances').update(entry).eq('id', id.toString());
+      } else {
+        console.log("SUPABASE UPDATE SUCCESS");
+      }
+    } catch(e) { console.error(e); }
+  },
+
 
   generateDemoBooking: async ({ cookies }) => {
     if (cookies?.get('adminSession') === 'viewer') return;
