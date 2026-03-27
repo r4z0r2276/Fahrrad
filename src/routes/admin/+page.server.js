@@ -9,7 +9,13 @@ export const load = async ({ cookies }) => {
     const { data: iData } = await supabase.from('inventory').select('*');
     const { data: fData, error: fError } = await supabase.from('finances').select('*').order('date', { ascending: true });
     if (fError) console.error("Finances fetch error:", fError);
-    if (fData && fData.length > 0) console.log("SAMPLE FINANCE ROW:", fData[0]);
+    if (fData && fData.length > 0) {
+      const keys = Object.keys(fData[0]);
+      console.log("SCHEMA CHECK: finances columns found:", keys);
+      if (!keys.includes('revenue') || !keys.includes('material_costs')) {
+        console.warn("WARNING: revenue or material_costs column missing in finances table!");
+      }
+    }
     const { data: nData } = await supabase.from('notes').select('*').order('id', { ascending: false }).limit(50);
     const { data: sData } = await supabase.from('settings').select('*').eq('id', 'shop').single();
     

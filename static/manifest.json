@@ -1,0 +1,21 @@
+{
+  "name": "Fahrradschrauber Mülheim",
+  "short_name": "Larsi ERP",
+  "description": "Werkstatt Management & Cockpit",
+  "start_url": "/admin",
+  "display": "standalone",
+  "background_color": "#0d1117",
+  "theme_color": "#ff6a00",
+  "icons": [
+    {
+      "src": "/pwa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/pwa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

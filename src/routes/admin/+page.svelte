@@ -1,6 +1,8 @@
 <script>
   import { enhance } from '$app/forms';
+  import NotificationManager from '$lib/NotificationManager.svelte';
   export let data;
+  let notificationManager;
   
   const statusOptions = ['Neu', 'In Bearbeitung', 'Ersatzteile bestellt', 'Abholbereit', 'Fahrrad abgeholt'];
   let currentFilter = 'Alle';
@@ -43,6 +45,28 @@
     .sort((a,b) => new Date(b.messages[b.messages.length - 1].timestamp) - new Date(a.messages[a.messages.length - 1].timestamp));
 
   $: unreadCount = bookingsWithMessages.filter(b => b.messages[b.messages.length - 1].sender === 'Kunde').length;
+
+  // Notification Trigger
+  let lastUnreadCount = unreadCount;
+  $: if (unreadCount > lastUnreadCount) {
+    if (notificationManager) {
+      notificationManager.showNotification("Neue Nachricht!", "Ein Kunde hat dir im Chat geschrieben.");
+    }
+    lastUnreadCount = unreadCount;
+  } else {
+    lastUnreadCount = unreadCount;
+  }
+
+  // Dashboard Monitoring for new bookings
+  let lastTotalCount = stats.total;
+  $: if (stats.total > lastTotalCount) {
+    if (notificationManager) {
+      notificationManager.showNotification("Neue Buchung!", "Ein neuer Reparatur-Auftrag ist eingegangen.");
+    }
+    lastTotalCount = stats.total;
+  } else {
+    lastTotalCount = stats.total;
+  }
 
   // Group bookings by phone number to create unique customers list
   $: customerMap = bookings.reduce((acc, b) => {
@@ -127,6 +151,8 @@
       {/if}
     </button>
   </header>
+
+  <NotificationManager bind:this={notificationManager} />
 
   {#if isMobileMenuOpen}
     <div class="mobile-menu">
@@ -605,8 +631,27 @@
             <form method="POST" action="?/updateSettings" use:enhance style="display: flex; gap: 8px;">
               <input type="hidden" name="status" value={data.settings?.status || 'Geöffnet (Regulär)'}>
               <input type="text" name="viewer_password" class="chat-input" placeholder="Passwort, z.B. fahrradGast" value={data.settings?.viewer_password || ''} style="width: 100%;">
-              <button type="submit" class="btn btn-primary" style="white-space: nowrap;">Gast-Login Speichern</button>
+              <button type="submit" class="btn-primary" style="white-space: nowrap;">Gast-Login Speichern</button>
             </form>
+          </div>
+
+          <div style="margin-top: 32px; padding-top: 24px; border-top: 1px dashed var(--border-color); background: rgba(0,0,0,0.2); padding: 16px; border-radius: 8px;">
+            <h4 style="margin-bottom: 8px; color: #facc15;">🛠️ Datenbank Diagnostik</h4>
+            <p class="text-muted" style="font-size: 0.85rem; margin-bottom: 12px;">Prüfung der Tabellen-Struktur für das Kassenbuch.</p>
+            <div style="display: flex; flex-direction: column; gap: 8px; font-family: monospace; font-size: 0.8rem;">
+              <div style="display: flex; justify-content: space-between;">
+                <span>Spalte 'revenue':</span>
+                <span style="color: {finances.length > 0 && Object.keys(finances[0]).includes('revenue') ? '#10b981' : '#ef4444'}">
+                  {finances.length > 0 && Object.keys(finances[0]).includes('revenue') ? '✅ Vorhanden' : '❌ Fehlt'}
+                </span>
+              </div>
+              <div style="display: flex; justify-content: space-between;">
+                <span>Spalte 'material_costs':</span>
+                <span style="color: {finances.length > 0 && Object.keys(finances[0]).includes('material_costs') ? '#10b981' : '#ef4444'}">
+                  {finances.length > 0 && Object.keys(finances[0]).includes('material_costs') ? '✅ Vorhanden' : '❌ Fehlt'}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
 
