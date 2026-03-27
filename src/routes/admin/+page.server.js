@@ -4,6 +4,10 @@ import { redirect } from '@sveltejs/kit';
 export const load = async ({ cookies }) => {
   const role = cookies.get('adminSession');
   
+  if (!role) {
+    throw redirect(303, '/admin/login');
+  }
+  
   try {
     const { data: bData } = await supabase.from('bookings').select('*').order('createdAt', { ascending: false });
     const { data: iData } = await supabase.from('inventory').select('*');

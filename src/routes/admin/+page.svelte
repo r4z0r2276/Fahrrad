@@ -25,7 +25,7 @@
   let editingFinanceId = null;
 
   // Reactive variables for filtering and stats
-  $: bookings = data.bookings;
+  $: bookings = data.bookings || [];
   $: filteredBookings = (currentFilter === 'Alle' 
     ? bookings.filter(b => b.status !== 'Abgeschlossen' && b.status !== 'Fahrrad abgeholt')
     : bookings.filter(b => b.status === currentFilter))
